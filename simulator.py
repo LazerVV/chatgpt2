@@ -85,7 +85,10 @@ class GridCircuit:
         return c
 
     def solve(self, ground=(0, 0)):
-        solver = Solver(self.to_circuit(), ground=ground)
+        circuit = self.to_circuit()
+        if ground not in circuit.nodes():
+            return {}, {}, None
+        solver = Solver(circuit, ground=ground)
         voltages, currents = solver.solve()
         cell_volt = {pos: voltages[idx] for pos, idx in solver.node_map.items()}
         return cell_volt, currents, solver
@@ -232,9 +235,15 @@ class Solver:
         ax.grid(True)
         plt.show()
 
-def draw_grid(grid, voltages, solver):
-    """Visualize a GridCircuit with node voltages."""
-    fig, ax = plt.subplots()
+def draw_grid(grid, voltages, solver, ax=None):
+    """Visualize a GridCircuit with node voltages.
+
+    If *ax* is provided the drawing is done on that Axes object. Otherwise a new
+    figure is created and shown when finished.
+    """
+    show = ax is None
+    if ax is None:
+        fig, ax = plt.subplots()
     ax.set_xlim(-0.5, grid.width - 0.5)
     ax.set_ylim(-0.5, grid.height - 0.5)
     ax.set_xticks(range(grid.width))
@@ -255,12 +264,14 @@ def draw_grid(grid, voltages, solver):
         xm = (x[0] + x[1]) / 2
         ym = (y[0] + y[1]) / 2
         ax.text(xm, ym, comp.name, fontsize=8, ha='center')
-    for pos, idx in solver.node_map.items():
-        v = voltages[pos]
-        ax.text(pos[0], pos[1], f"{v:.2f}V", color='purple', ha='center', va='bottom', fontsize=8)
-        ax.plot(pos[0], pos[1], 'ko')
+    if solver is not None:
+        for pos, idx in solver.node_map.items():
+            v = voltages.get(pos, 0.0)
+            ax.text(pos[0], pos[1], f"{v:.2f}V", color='purple', ha='center', va='bottom', fontsize=8)
+            ax.plot(pos[0], pos[1], 'ko')
     ax.set_aspect('equal')
-    plt.show()
+    if show:
+        plt.show()
 
 # Example circuits
 
