@@ -1,0 +1,8 @@
+[project]
+name = "cultofgpt-forum"
+version = "0.1.0"
+description = "Library to post threads on cultofgpt forum and poll responses"
+authors = [{ name = "Example" }]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = ["requests", "beautifulsoup4"]
